@@ -5,7 +5,7 @@ export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const canvas = canvasRef.current;
   // Ensure that the canvas is not null
-  const [gridSize, setGridSize] = useState(10);
+  const [gridSize, setGridSize] = useState(50);
 
   const canvasHeight = 680;
   const canvasWidth = 420;
@@ -43,7 +43,9 @@ export default function Home() {
     drawGrid();
   };
 
-  useEffect(drawGrid, []);
+  useEffect(() => {
+    drawGrid();
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen">
