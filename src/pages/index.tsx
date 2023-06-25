@@ -4,18 +4,14 @@ export default function Home() {
   const [letter, setLetter] = useState("A");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const canvas = canvasRef.current;
+  const ctx = canvas?.getContext("2d");
   // Ensure that the canvas is not null
   const [gridSize, setGridSize] = useState(50);
 
-  const canvasHeight = 680;
-  const canvasWidth = 420;
+  const canvasHeight = 500;
+  const canvasWidth = 500;
 
-  function drawGrid() {
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-
+  function drawGrid(ctx: CanvasRenderingContext2D) {
     // Given gridSize, divide canvas into gridSize equal parts
     const cellWidth = canvasWidth / gridSize;
     const cellHeight = canvasHeight / gridSize;
@@ -37,15 +33,35 @@ export default function Home() {
     }
   }
 
+  function drawLetter(ctx: CanvasRenderingContext2D) {
+    ctx.font = "bold 500px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(letter, canvasWidth / 2, canvasHeight / 2);
+  }
+
+  const drawSequence = [
+    drawGrid,
+    drawLetter
+  ]
+
   // Set Gridsize on input change
   const onGrid = (e: React.ChangeEvent<HTMLInputElement>) => {
     setGridSize(parseInt(e.target.value));
-    drawGrid();
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    drawSequence.forEach((draw) => draw(ctx));
   };
 
-  useEffect(() => {
-    drawGrid();
-  }, []);
+  // Set letter on input change
+  const onLetter = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLetter(e.target.value);
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    drawSequence.forEach((draw) => draw(ctx));
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -56,7 +72,7 @@ export default function Home() {
         <div className="flex-1 w-full flex">
           <header className="bg-gray-500 text-white flex items-center justify-between px-4 py-3 w-1/2">
             <h2 className="text-2xl font-bold mx-auto">Letter</h2>
-            <input type="text" className="border border-gray-400" placeholder={letter} />
+            <input type="text" className="border border-gray-400" placeholder={letter} onInput={onLetter} maxLength={1} />
           </header>
           <header className="bg-gray-500 text-white flex items-center justify-between px-4 py-3 w-1/2">
             <h2 className="text-2xl font-bold mx-auto">Grid Size: {gridSize}</h2>
